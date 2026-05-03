@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur5e_with_gripper">
+
+  <!-- ========== Arguments ========== -->
+  <xacro:arg name="name"                         default="ur5e"/>
+  <xacro:arg name="tf_prefix"                    default=""/>
+  <xacro:arg name="simulation_controllers"       default=""/>
+  <xacro:arg name="ros_namespace"                default=""/>
+
+  <!-- UR5e config -->
+  <xacro:arg name="joint_limit_params"    default="$(find ur_description)/config/ur5e/joint_limits.yaml"/>
+  <xacro:arg name="kinematics_params"     default="$(find ur_description)/config/ur5e/default_kinematics.yaml"/>
+  <xacro:arg name="physical_params"       default="$(find ur_description)/config/ur5e/physical_parameters.yaml"/>
+  <xacro:arg name="visual_params"         default="$(find ur_description)/config/ur5e/visual_parameters.yaml"/>
+  <xacro:arg name="safety_limits"         default="false"/>
+  <xacro:arg name="safety_pos_margin"     default="0.15"/>
+  <xacro:arg name="safety_k_position"     default="20"/>
+
+  <!-- ========== Includes ========== -->
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+  <xacro:include filename="$(find ur_simulation_gz)/urdf/ur_gz.ros2_control.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro"/>
+
+  <!-- ========== World link ========== -->
+  <link name="world"/>
+
+  <!-- ========== Pedestal ========== -->
+  <link name="pedestal">
+    <visual>
+      <origin xyz="0 0 0.25" rpy="0 0 0"/>
+      <geometry><box size="0.15 0.15 0.5"/></geometry>
+      <material name="grey"><color rgba="0.4 0.4 0.4 1.0"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.25" rpy="0 0 0"/>
+      <geometry><box size="0.15 0.15 0.5"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="20.0"/>
+      <origin xyz="0 0 0.25"/>
+      <inertia ixx="0.4" ixy="0" ixz="0" iyy="0.4" iyz="0" izz="0.05"/>
+    </inertial>
+  </link>
+
+  <joint name="world_to_pedestal" type="fixed">
+    <parent link="world"/>
+    <child link="pedestal"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ========== UR5e arm (kinematics only) ========== -->
+  <xacro:ur_robot
+    name="$(arg name)"
+    tf_prefix="$(arg tf_prefix)"
+    parent="pedestal"
+    joint_limits_parameters_file="$(arg joint_limit_params)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    physical_parameters_file="$(arg physical_params)"
+    visual_parameters_file="$(arg visual_params)"
+    safety_limits="$(arg safety_limits)"
+    safety_pos_margin="$(arg safety_pos_margin)"
+    safety_k_position="$(arg safety_k_position)"
+    force_abs_paths="true">
+    <origin xyz="0 0 0.5" rpy="0 0 0"/>
+  </xacro:ur_robot>
+
+  <!-- ========== UR5e ros2_control (sim hardware) ========== -->
+  <xacro:ur_ros2_control
+    name="$(arg name)"
+    tf_prefix="$(arg tf_prefix)"/>
+
+  <!-- ========== UR to Robotiq adapter ========== -->
+  <xacro:ur_to_robotiq
+    prefix="$(arg tf_prefix)"
+    parent="$(arg tf_prefix)tool0"
+    child="$(arg tf_prefix)robotiq_arg2f_base_link"/>
+
+  <!-- ========== Robotiq 2F-85 ========== -->
+  <xacro:robotiq_gripper
+    name="RobotiqGripperHardwareInterface"
+    prefix="$(arg tf_prefix)"
+    parent="$(arg tf_prefix)robotiq_arg2f_base_link"
+    sim_gazebo="true"
+    use_fake_hardware="false"
+    include_ros2_control="true">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:robotiq_gripper>
+
+<!-- ========== Gazebo: switch to bullet for mimic joint support ========== -->
+  <gazebo>
+    <physics type="bullet">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+  </gazebo>
+
+  <!-- ========== Gazebo plugin — ros2_control ========== -->
+  <gazebo reference="world"/>
+  <gazebo>
+    <plugin filename="gz_ros2_control-system"
+            name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+      <parameters>$(arg simulation_controllers)</parameters>
+      <ros>
+        <namespace>$(arg ros_namespace)</namespace>
+      </ros>
+    </plugin>
+  </gazebo>
+
+</robot>
