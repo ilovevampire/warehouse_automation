@@ -26,34 +26,13 @@
   <link name="world"/>
 
   <!-- ========== Pedestal ========== -->
-  <link name="pedestal">
-    <visual>
-      <origin xyz="0 0 0.25" rpy="0 0 0"/>
-      <geometry><box size="0.15 0.15 0.5"/></geometry>
-      <material name="grey"><color rgba="0.4 0.4 0.4 1.0"/></material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 0.25" rpy="0 0 0"/>
-      <geometry><box size="0.15 0.15 0.5"/></geometry>
-    </collision>
-    <inertial>
-      <mass value="20.0"/>
-      <origin xyz="0 0 0.25"/>
-      <inertia ixx="0.4" ixy="0" ixz="0" iyy="0.4" iyz="0" izz="0.05"/>
-    </inertial>
-  </link>
 
-  <joint name="world_to_pedestal" type="fixed">
-    <parent link="world"/>
-    <child link="pedestal"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-  </joint>
 
   <!-- ========== UR5e arm (kinematics only) ========== -->
   <xacro:ur_robot
     name="$(arg name)"
     tf_prefix="$(arg tf_prefix)"
-    parent="pedestal"
+    parent="world"
     joint_limits_parameters_file="$(arg joint_limit_params)"
     kinematics_parameters_file="$(arg kinematics_params)"
     physical_parameters_file="$(arg physical_params)"
@@ -62,7 +41,7 @@
     safety_pos_margin="$(arg safety_pos_margin)"
     safety_k_position="$(arg safety_k_position)"
     force_abs_paths="true">
-    <origin xyz="0 0 0.5" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:ur_robot>
 
   <!-- ========== UR5e ros2_control (sim hardware) ========== -->
