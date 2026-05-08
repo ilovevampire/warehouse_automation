@@ -325,12 +325,6 @@ cp ~/warehouse_ws/src/warehouse_gazebo/worlds/warehouse_modified.sdf \
    ~/warehouse_ws/install/warehouse_gazebo/share/warehouse_gazebo/worlds/
 ```
 
-### Stale build cache error (`symbolic link` / `Is a directory`)
-```bash
-rm -rf ~/warehouse_ws/build/ur_dashboard_msgs
-colcon build --symlink-install
-```
-
 ---
 
 ## 📄 License
