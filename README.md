@@ -302,28 +302,6 @@ $HOME/warehouse_ws/install/robotiq_description/share
 ### Mimic joint warning (Dartsim)
 Launch already uses `--physics-engine gz-physics-bullet-featherstone-plugin`. No action needed.
 
-### `robot_description` YAML parse error
-Ensure `ParameterValue` is used in the launch file:
-```python
-from launch_ros.parameter_descriptions import ParameterValue
-robot_description = {
-    "robot_description": ParameterValue(robot_description_content, value_type=str)
-}
-```
-
-### World file corrupted after saving from Gazebo GUI
-```bash
-python3 -c "
-import re
-f='/home/vshal/warehouse_ws/src/warehouse_gazebo/worlds/warehouse_modified.sdf'
-content=open(f).read()
-content=re.sub(r'\s*<include>\s*<uri>file://<urdf-string></uri>.*?</include>','',content,flags=re.DOTALL)
-open(f,'w').write(content)
-print('Cleaned')
-"
-cp ~/warehouse_ws/src/warehouse_gazebo/worlds/warehouse_modified.sdf \
-   ~/warehouse_ws/install/warehouse_gazebo/share/warehouse_gazebo/worlds/
-```
 
 ---
 
