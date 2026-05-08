@@ -72,7 +72,7 @@ def launch_setup(context, *args, **kwargs):
                 world_file
             ]
         }.items(),
-    )
+    ) #I am using different physics engine as my laptop is weaker
 
     # Spawn robot on top of robot_table (z=0.9 = table height)
     gz_spawn = Node(
