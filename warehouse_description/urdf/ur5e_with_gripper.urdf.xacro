@@ -21,6 +21,7 @@
   <xacro:include filename="$(find ur_simulation_gz)/urdf/ur_gz.ros2_control.xacro"/>
   <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro"/>
   <xacro:include filename="$(find robotiq_description)/urdf/ur_to_robotiq_adapter.urdf.xacro"/>
+  <xacro:include filename="$(find warehouse_description)/urdf/camera.xacro"/>
 
   <!-- ========== World link ========== -->
   <link name="world"/>
@@ -65,7 +66,16 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </xacro:robotiq_gripper>
 
-<!-- ========== Gazebo: switch to bullet for mimic joint support ========== -->
+
+  <!-- ========== Intel RealSense D435 — eye-in-hand ========== -->
+  <xacro:realsense_d435_gazebo
+    prefix="$(arg tf_prefix)"
+    parent="$(arg tf_prefix)tool0">
+    <!-- Mounted forward of tool0, angled 30deg down toward workspace -->
+    <origin xyz="0.0 -0.08 -0.01" rpy="0 -1.57 1.57"/>
+  </xacro:realsense_d435_gazebo>
+
+<!-- ========== Gazebo: switch to bullet for mimic joint support my laptop is weaker ========== -->
   <gazebo>
     <physics type="bullet">
       <max_step_size>0.001</max_step_size>

@@ -1,50 +1,24 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
-  <xacro:macro name="realsense_d435" params="prefix parent *origin">
+  <!-- Intel RealSense D435 — eye-in-hand mount -->
+  <!-- Uses official realsense2_description macro for real mesh -->
+  <!-- Adds Gazebo RGBD sensor block on top -->
 
-    <!-- ========== Camera housing link ========== -->
-    <link name="${prefix}camera_link">
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <box size="0.025 0.090 0.025"/>
-        </geometry>
-        <material name="camera_grey">
-          <color rgba="0.2 0.2 0.2 1.0"/>
-        </material>
-      </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <box size="0.025 0.090 0.025"/>
-        </geometry>
-      </collision>
-      <inertial>
-        <mass value="0.072"/>
-        <origin xyz="0 0 0"/>
-        <inertia ixx="0.003881243" ixy="0" ixz="0"
-                 iyy="0.000498940" iyz="0"
-                 izz="0.003879257"/>
-      </inertial>
-    </link>
+  <xacro:include filename="$(find realsense2_description)/urdf/_d435.urdf.xacro"/>
 
-    <!-- Camera mounted on flange via fixed joint -->
-    <joint name="${prefix}camera_joint" type="fixed">
-      <parent link="${parent}"/>
-      <child link="${prefix}camera_link"/>
+  <xacro:macro name="realsense_d435_gazebo" params="prefix parent *origin">
+
+    <!-- Real D435 visual/collision/TF via official macro -->
+    <xacro:sensor_d435
+      name="${prefix}camera"
+      parent="${parent}"
+      use_nominal_extrinsics="true"
+      use_mesh="true">
       <xacro:insert_block name="origin"/>
-    </joint>
+    </xacro:sensor_d435>
 
-    <!-- Optical frame — Z forward, X right, Y down (ROS convention) -->
-    <link name="${prefix}camera_optical_frame"/>
-    <joint name="${prefix}camera_optical_joint" type="fixed">
-      <parent link="${prefix}camera_link"/>
-      <child link="${prefix}camera_optical_frame"/>
-      <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}"/>
-    </joint>
-
-    <!-- ========== Gazebo RGBD sensor ========== -->
+    <!-- Gazebo RGBD sensor attached to camera_link -->
     <gazebo reference="${prefix}camera_link">
       <sensor name="rgbd_camera" type="rgbd_camera">
         <camera>
@@ -71,4 +45,5 @@
     </gazebo>
 
   </xacro:macro>
+
 </robot>
