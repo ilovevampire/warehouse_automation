@@ -107,6 +107,31 @@ def launch_setup(context, *args, **kwargs):
         arguments=["robotiq_gripper_controller", "-c", "/controller_manager"],
     )
 
+    # RGB + Depth image bridge (gz -> ROS image topics)
+    camera_image_bridge = Node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        arguments=[
+            '/camera/image',
+            '/camera/depth_image',
+        ],
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+    )
+
+    # PointCloud2 + CameraInfo bridge
+    camera_info_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=[
+            '/camera/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+        ],
+        output='screen',
+        parameters=[{'use_sim_time': True}],
+    )
+
+
     delay_controllers_after_jsb = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=joint_state_broadcaster_spawner,
@@ -139,6 +164,8 @@ def launch_setup(context, *args, **kwargs):
         gz_sim,
         gz_spawn,
         gz_bridge,
+        camera_image_bridge,        # <-- added camera
+        camera_info_bridge,         # <-- add camera 
         joint_state_broadcaster_spawner,
         delay_controllers_after_jsb,
         delay_rviz_after_jsb,

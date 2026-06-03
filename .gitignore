@@ -18,3 +18,7 @@ __pycache__/
 
 # OS
 .DS_Store
+Universal_Robots_ROS2_Description/
+Universal_Robots_ROS2_GZ_Simulation/
+Universal_Robots_ROS2_Driver/
+ros2_robotiq_gripper/
